@@ -53,6 +53,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { profile } = useFinance();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  const bare = pathname === "/login";
+
   const open = useCallback((kind: TransactionKind = "despesa") => {
     setQuickAddKind(kind);
     setQuickAddOpen(true);
@@ -89,6 +91,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  if (bare) return <>{children}</>;
 
   return (
     <QuickAddContext.Provider value={{ open }}>
