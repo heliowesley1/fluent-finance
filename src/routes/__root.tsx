@@ -15,6 +15,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { FinanceProvider } from "@/lib/finance-store";
 import { ThemeProvider } from "@/lib/theme";
+import { AppShell } from "@/components/app-shell";
 
 function NotFoundComponent() {
   return (
@@ -130,7 +131,9 @@ function RootComponent() {
         <FinanceProvider>
           <TooltipProvider delayDuration={200}>
             {/* Required: nested routes render here. */}
-            <Outlet />
+            <AppShell>
+              <Outlet />
+            </AppShell>
             <Toaster position="top-right" richColors />
           </TooltipProvider>
         </FinanceProvider>
