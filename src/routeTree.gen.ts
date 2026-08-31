@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CartoesRouteImport } from './routes/cartoes'
 import { Route as ContasRouteImport } from './routes/contas'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
+import { Route as OrcamentosRouteImport } from './routes/orcamentos'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const LancamentosRoute = LancamentosRouteImport.update({
   path: '/lancamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrcamentosRoute = OrcamentosRouteImport.update({
+  id: '/orcamentos',
+  path: '/orcamentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
   '/lancamentos': typeof LancamentosRoute
+  '/orcamentos': typeof OrcamentosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
   '/lancamentos': typeof LancamentosRoute
+  '/orcamentos': typeof OrcamentosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
   '/lancamentos': typeof LancamentosRoute
+  '/orcamentos': typeof OrcamentosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cartoes' | '/contas' | '/lancamentos'
+  fullPaths: '/' | '/cartoes' | '/contas' | '/lancamentos' | '/orcamentos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cartoes' | '/contas' | '/lancamentos'
-  id: '__root__' | '/' | '/cartoes' | '/contas' | '/lancamentos'
+  to: '/' | '/cartoes' | '/contas' | '/lancamentos' | '/orcamentos'
+  id: '__root__' | '/' | '/cartoes' | '/contas' | '/lancamentos' | '/orcamentos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   CartoesRoute: typeof CartoesRoute
   ContasRoute: typeof ContasRoute
   LancamentosRoute: typeof LancamentosRoute
+  OrcamentosRoute: typeof OrcamentosRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LancamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orcamentos': {
+      id: '/orcamentos'
+      path: '/orcamentos'
+      fullPath: '/orcamentos'
+      preLoaderRoute: typeof OrcamentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartoesRoute: CartoesRoute,
   ContasRoute: ContasRoute,
   LancamentosRoute: LancamentosRoute,
+  OrcamentosRoute: OrcamentosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
