@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CartoesRouteImport } from './routes/cartoes'
 import { Route as ContasRouteImport } from './routes/contas'
+import { Route as DividasRouteImport } from './routes/dividas'
 import { Route as InvestimentosRouteImport } from './routes/investimentos'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
 import { Route as MetasRouteImport } from './routes/metas'
@@ -30,6 +31,11 @@ const CartoesRoute = CartoesRouteImport.update({
 const ContasRoute = ContasRouteImport.update({
   id: '/contas',
   path: '/contas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DividasRoute = DividasRouteImport.update({
+  id: '/dividas',
+  path: '/dividas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvestimentosRoute = InvestimentosRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
+  '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
   '/lancamentos': typeof LancamentosRoute
   '/metas': typeof MetasRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
+  '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
   '/lancamentos': typeof LancamentosRoute
   '/metas': typeof MetasRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
+  '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
   '/lancamentos': typeof LancamentosRoute
   '/metas': typeof MetasRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cartoes'
     | '/contas'
+    | '/dividas'
     | '/investimentos'
     | '/lancamentos'
     | '/metas'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cartoes'
     | '/contas'
+    | '/dividas'
     | '/investimentos'
     | '/lancamentos'
     | '/metas'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cartoes'
     | '/contas'
+    | '/dividas'
     | '/investimentos'
     | '/lancamentos'
     | '/metas'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartoesRoute: typeof CartoesRoute
   ContasRoute: typeof ContasRoute
+  DividasRoute: typeof DividasRoute
   InvestimentosRoute: typeof InvestimentosRoute
   LancamentosRoute: typeof LancamentosRoute
   MetasRoute: typeof MetasRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/contas'
       fullPath: '/contas'
       preLoaderRoute: typeof ContasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dividas': {
+      id: '/dividas'
+      path: '/dividas'
+      fullPath: '/dividas'
+      preLoaderRoute: typeof DividasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/investimentos': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartoesRoute: CartoesRoute,
   ContasRoute: ContasRoute,
+  DividasRoute: DividasRoute,
   InvestimentosRoute: InvestimentosRoute,
   LancamentosRoute: LancamentosRoute,
   MetasRoute: MetasRoute,
