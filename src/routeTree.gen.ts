@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssinaturasRouteImport } from './routes/assinaturas'
 import { Route as CartoesRouteImport } from './routes/cartoes'
 import { Route as ContasRouteImport } from './routes/contas'
 import { Route as DividasRouteImport } from './routes/dividas'
@@ -21,6 +22,11 @@ import { Route as OrcamentosRouteImport } from './routes/orcamentos'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssinaturasRoute = AssinaturasRouteImport.update({
+  id: '/assinaturas',
+  path: '/assinaturas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartoesRoute = CartoesRouteImport.update({
@@ -61,6 +67,7 @@ const OrcamentosRoute = OrcamentosRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assinaturas': typeof AssinaturasRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
   '/dividas': typeof DividasRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assinaturas': typeof AssinaturasRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
   '/dividas': typeof DividasRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assinaturas': typeof AssinaturasRoute
   '/cartoes': typeof CartoesRoute
   '/contas': typeof ContasRoute
   '/dividas': typeof DividasRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/assinaturas'
     | '/cartoes'
     | '/contas'
     | '/dividas'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/assinaturas'
     | '/cartoes'
     | '/contas'
     | '/dividas'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/assinaturas'
     | '/cartoes'
     | '/contas'
     | '/dividas'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssinaturasRoute: typeof AssinaturasRoute
   CartoesRoute: typeof CartoesRoute
   ContasRoute: typeof ContasRoute
   DividasRoute: typeof DividasRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assinaturas': {
+      id: '/assinaturas'
+      path: '/assinaturas'
+      fullPath: '/assinaturas'
+      preLoaderRoute: typeof AssinaturasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cartoes': {
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssinaturasRoute: AssinaturasRoute,
   CartoesRoute: CartoesRoute,
   ContasRoute: ContasRoute,
   DividasRoute: DividasRoute,
