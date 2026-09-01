@@ -55,7 +55,7 @@ export interface SmartResult {
   kind: "receita" | "despesa";
   amount: number;
   description: string;
-  categoryId?: string;
+  categoryId?: string | undefined;
 }
 
 /** Interpreta entradas como "Almoço 35" ou "Salário 3500". */
@@ -66,7 +66,7 @@ export function smartParse(input: string): SmartResult | null {
   const amountMatch = text.match(/(\d+(?:[.,]\d{1,2})?)\s*$/) ?? text.match(/(\d+(?:[.,]\d{1,2})?)/);
   if (!amountMatch) return null;
 
-  const amount = Number(amountMatch[1].replace(".", "").replace(",", "."));
+  const amount = Number((amountMatch[1] ?? "").replace(".", "").replace(",", "."));
   if (!amount || Number.isNaN(amount)) return null;
 
   const description = text.replace(amountMatch[0], "").replace(/r\$/i, "").trim();

@@ -58,12 +58,12 @@ function ConfiguracoesPage() {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>Tema</Label>
-              <Select value={theme} onValueChange={(v) => setTheme(v as typeof theme)}>
+              <Select value={theme} onValueChange={(v) => setTheme(v as "light" | "dark")}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="light">Claro</SelectItem>
                   <SelectItem value="dark">Escuro</SelectItem>
-                  <SelectItem value="system">Sistema</SelectItem>
+                  
                 </SelectContent>
               </Select>
             </div>
