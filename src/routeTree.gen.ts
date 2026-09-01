@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AssinaturasRouteImport } from './routes/assinaturas'
 import { Route as CartoesRouteImport } from './routes/cartoes'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ContasRouteImport } from './routes/contas'
 import { Route as DividasRouteImport } from './routes/dividas'
 import { Route as InvestimentosRouteImport } from './routes/investimentos'
@@ -34,6 +35,11 @@ const AssinaturasRoute = AssinaturasRouteImport.update({
 const CartoesRoute = CartoesRouteImport.update({
   id: '/cartoes',
   path: '/cartoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContasRoute = ContasRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assinaturas': typeof AssinaturasRoute
   '/cartoes': typeof CartoesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/contas': typeof ContasRoute
   '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assinaturas': typeof AssinaturasRoute
   '/cartoes': typeof CartoesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/contas': typeof ContasRoute
   '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/assinaturas': typeof AssinaturasRoute
   '/cartoes': typeof CartoesRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/contas': typeof ContasRoute
   '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/assinaturas'
     | '/cartoes'
+    | '/configuracoes'
     | '/contas'
     | '/dividas'
     | '/investimentos'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/assinaturas'
     | '/cartoes'
+    | '/configuracoes'
     | '/contas'
     | '/dividas'
     | '/investimentos'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/assinaturas'
     | '/cartoes'
+    | '/configuracoes'
     | '/contas'
     | '/dividas'
     | '/investimentos'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssinaturasRoute: typeof AssinaturasRoute
   CartoesRoute: typeof CartoesRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   ContasRoute: typeof ContasRoute
   DividasRoute: typeof DividasRoute
   InvestimentosRoute: typeof InvestimentosRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/cartoes'
       fullPath: '/cartoes'
       preLoaderRoute: typeof CartoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contas': {
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssinaturasRoute: AssinaturasRoute,
   CartoesRoute: CartoesRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   ContasRoute: ContasRoute,
   DividasRoute: DividasRoute,
   InvestimentosRoute: InvestimentosRoute,
