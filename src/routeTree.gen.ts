@@ -17,6 +17,7 @@ import { Route as ContasRouteImport } from './routes/contas'
 import { Route as DividasRouteImport } from './routes/dividas'
 import { Route as InvestimentosRouteImport } from './routes/investimentos'
 import { Route as LancamentosRouteImport } from './routes/lancamentos'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as OrcamentosRouteImport } from './routes/orcamentos'
 import { Route as PatrimonioRouteImport } from './routes/patrimonio'
@@ -62,6 +63,11 @@ const LancamentosRoute = LancamentosRouteImport.update({
   path: '/lancamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MetasRoute = MetasRouteImport.update({
   id: '/metas',
   path: '/metas',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/orcamentos': typeof OrcamentosRoute
   '/patrimonio': typeof PatrimonioRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/orcamentos': typeof OrcamentosRoute
   '/patrimonio': typeof PatrimonioRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/dividas': typeof DividasRoute
   '/investimentos': typeof InvestimentosRoute
   '/lancamentos': typeof LancamentosRoute
+  '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/orcamentos': typeof OrcamentosRoute
   '/patrimonio': typeof PatrimonioRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/dividas'
     | '/investimentos'
     | '/lancamentos'
+    | '/login'
     | '/metas'
     | '/orcamentos'
     | '/patrimonio'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/dividas'
     | '/investimentos'
     | '/lancamentos'
+    | '/login'
     | '/metas'
     | '/orcamentos'
     | '/patrimonio'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/dividas'
     | '/investimentos'
     | '/lancamentos'
+    | '/login'
     | '/metas'
     | '/orcamentos'
     | '/patrimonio'
@@ -180,6 +192,7 @@ export interface RootRouteChildren {
   DividasRoute: typeof DividasRoute
   InvestimentosRoute: typeof InvestimentosRoute
   LancamentosRoute: typeof LancamentosRoute
+  LoginRoute: typeof LoginRoute
   MetasRoute: typeof MetasRoute
   OrcamentosRoute: typeof OrcamentosRoute
   PatrimonioRoute: typeof PatrimonioRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LancamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/metas': {
       id: '/metas'
       path: '/metas'
@@ -284,6 +304,7 @@ const rootRouteChildren: RootRouteChildren = {
   DividasRoute: DividasRoute,
   InvestimentosRoute: InvestimentosRoute,
   LancamentosRoute: LancamentosRoute,
+  LoginRoute: LoginRoute,
   MetasRoute: MetasRoute,
   OrcamentosRoute: OrcamentosRoute,
   PatrimonioRoute: PatrimonioRoute,
