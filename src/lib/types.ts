@@ -46,15 +46,15 @@ export interface Transaction {
   description: string;
   amount: number;
   date: string; // ISO yyyy-mm-dd
-  categoryId?: string;
-  accountId?: string;
-  cardId?: string;
-  toAccountId?: string;
+  categoryId?: string | undefined;
+  accountId?: string | undefined;
+  cardId?: string | undefined;
+  toAccountId?: string | undefined;
   method: PaymentMethod;
   status: TransactionStatus;
-  notes?: string;
-  recurring?: boolean;
-  installments?: { current: number; total: number };
+  notes?: string | undefined;
+  recurring?: boolean | undefined;
+  installments?: { current: number; total: number } | undefined;
 }
 
 export interface Budget {

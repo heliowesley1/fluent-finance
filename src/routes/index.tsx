@@ -46,8 +46,9 @@ function Dashboard() {
   const [period, setPeriod] = useState<"dia" | "semana" | "mes">("dia");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const monthKey = new Date().toISOString().slice(0, 7);
-  const monthTx = transactions.filter((t) => t.date.startsWith(monthKey));
+  const windowStart = new Date();
+  windowStart.setDate(windowStart.getDate() - 30);
+  const monthTx = transactions.filter((t) => new Date(`${t.date}T12:00:00`) >= windowStart);
 
   const receitas = monthTx
     .filter((t) => t.kind === "receita")
@@ -122,7 +123,7 @@ function Dashboard() {
     <>
       <PageHeader
         title={`${greeting(profile.name)} 👋`}
-        subtitle={`Resumo de ${new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}. Tudo em dia por aqui.`}
+        subtitle="Resumo dos últimos 30 dias. Tudo em dia por aqui."
         actions={
           <Button className="gap-2" onClick={() => quickAdd.open("despesa")}>
             <Plus className="size-4" />
@@ -144,17 +145,17 @@ function Dashboard() {
           value={formatCurrency(receitas)}
           tone="positive"
           icon={TrendingUp}
-          footer="recebido no mês"
+          footer="recebido no período"
         />
         <StatCard
           label="Despesas"
           value={formatCurrency(despesas)}
           tone="negative"
           icon={TrendingDown}
-          footer="gasto no mês"
+          footer="gasto no período"
         />
         <StatCard
-          label="Saldo do mês"
+          label="Saldo do período"
           value={formatCurrency(receitas - despesas)}
           tone={receitas - despesas >= 0 ? "positive" : "negative"}
           icon={PiggyBank}

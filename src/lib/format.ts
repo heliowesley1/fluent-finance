@@ -44,12 +44,12 @@ export const MONTH_NAMES = MONTHS;
 
 export function monthLabel(iso: string) {
   const month = Number(iso.slice(5, 7)) - 1;
-  return `${MONTHS[month]} ${iso.slice(0, 4)}`;
+  return `${MONTHS[month] ?? ""} ${iso.slice(0, 4)}`;
 }
 
 export function shortMonth(iso: string) {
   const month = Number(iso.slice(5, 7)) - 1;
-  return `${MONTHS[month].slice(0, 3)}/${iso.slice(2, 4)}`;
+  return `${(MONTHS[month] ?? "").slice(0, 3)}/${iso.slice(2, 4)}`;
 }
 
 export function todayISO() {

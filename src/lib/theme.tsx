@@ -1,10 +1,15 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-type Theme = "light" | "dark";
+export type Theme = "light" | "dark";
 
-const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
+const ThemeContext = createContext<{
+  theme: Theme;
+  toggle: () => void;
+  setTheme: (theme: Theme) => void;
+}>({
   theme: "light",
   toggle: () => {},
+  setTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -24,7 +29,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider
-      value={{ theme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) }}
+      value={{ theme, setTheme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) }}
     >
       {children}
     </ThemeContext.Provider>
