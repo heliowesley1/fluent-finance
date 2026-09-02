@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { FinanceProvider } from "@/lib/finance-store";
+import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import { AppShell } from "@/components/app-shell";
 
@@ -128,15 +129,17 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <FinanceProvider>
-          <TooltipProvider delayDuration={200}>
-            {/* Required: nested routes render here. */}
-            <AppShell>
-              <Outlet />
-            </AppShell>
-            <Toaster position="top-right" richColors />
-          </TooltipProvider>
-        </FinanceProvider>
+        <AuthProvider>
+          <FinanceProvider>
+            <TooltipProvider delayDuration={200}>
+              {/* Required: nested routes render here. */}
+              <AppShell>
+                <Outlet />
+              </AppShell>
+              <Toaster position="top-right" richColors />
+            </TooltipProvider>
+          </FinanceProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

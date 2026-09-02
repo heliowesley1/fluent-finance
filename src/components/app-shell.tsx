@@ -1,6 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, Moon, Plus, Search, Sun, Wallet } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { LogOut, Menu, Moon, Plus, Search, Sun, Wallet } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -51,9 +60,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { theme, toggle } = useTheme();
   const { profile } = useFinance();
+  const { user, ready, signOut } = useAuth();
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const bare = pathname === "/login";
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!user && !bare) navigate({ to: "/login", replace: true });
+    if (user && bare) navigate({ to: "/", replace: true });
+  }, [ready, user, bare, navigate]);
 
   const open = useCallback((kind: TransactionKind = "despesa") => {
     setQuickAddKind(kind);
@@ -93,6 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [open]);
 
   if (bare) return <>{children}</>;
+  if (!ready || !user) return <div className="min-h-screen bg-background" />;
 
   return (
     <QuickAddContext.Provider value={{ open }}>
