@@ -129,15 +129,17 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <FinanceProvider>
-          <TooltipProvider delayDuration={200}>
-            {/* Required: nested routes render here. */}
-            <AppShell>
-              <Outlet />
-            </AppShell>
-            <Toaster position="top-right" richColors />
-          </TooltipProvider>
-        </FinanceProvider>
+        <AuthProvider>
+          <FinanceProvider>
+            <TooltipProvider delayDuration={200}>
+              {/* Required: nested routes render here. */}
+              <AppShell>
+                <Outlet />
+              </AppShell>
+              <Toaster position="top-right" richColors />
+            </TooltipProvider>
+          </FinanceProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
