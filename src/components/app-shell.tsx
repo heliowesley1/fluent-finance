@@ -110,6 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [open]);
 
   if (bare) return <>{children}</>;
+  if (!ready || !user) return <div className="min-h-screen bg-background" />;
 
   return (
     <QuickAddContext.Provider value={{ open }}>
