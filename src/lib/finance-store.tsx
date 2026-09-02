@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import * as mock from "./mock-data";
+import { useAuth } from "./auth";
 import type {
   Account,
   Budget,
@@ -29,6 +30,16 @@ interface FinanceState {
   addGoal: (goal: Omit<Goal, "id">) => void;
   contributeToGoal: (id: string, amount: number) => void;
   setBudgetLimit: (categoryId: string, limit: number) => void;
+  addAccount: (input: Omit<Account, "id" | "lastMovementAt">) => void;
+  removeAccount: (id: string) => void;
+  transfer: (fromId: string, toId: string, amount: number, description?: string) => void;
+  addCard: (input: Omit<CreditCard, "id" | "currentInvoice">) => void;
+  payInvoice: (cardId: string, accountId: string) => void;
+  addInvestment: (input: Omit<Investment, "id">) => void;
+  removeInvestment: (id: string) => void;
+  addSubscription: (input: Omit<Subscription, "id">) => void;
+  removeSubscription: (id: string) => void;
+  payDebtInstallment: (id: string) => void;
   categoryById: (id?: string) => Category | undefined;
   accountById: (id?: string) => Account | undefined;
   cardById: (id?: string) => CreditCard | undefined;
@@ -40,10 +51,20 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function FinanceProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>(mock.transactions);
   const [budgets, setBudgets] = useState<Budget[]>(mock.budgets);
   const [goals, setGoals] = useState<Goal[]>(mock.goals);
+  const [accounts, setAccounts] = useState<Account[]>(mock.accounts);
+  const [cards, setCards] = useState<CreditCard[]>(mock.cards);
+  const [investments, setInvestments] = useState<Investment[]>(mock.investments);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>(mock.subscriptions);
+  const [debts, setDebts] = useState<Debt[]>(mock.debts);
 
   const addTransaction = useCallback((input: Omit<Transaction, "id">) => {
     setTransactions((prev) => [{ ...input, id: uid() }, ...prev]);
@@ -51,6 +72,23 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       setBudgets((prev) =>
         prev.map((b) =>
           b.categoryId === input.categoryId ? { ...b, spent: b.spent + input.amount } : b,
+        ),
+      );
+    }
+    if (input.accountId) {
+      const delta = input.kind === "receita" ? input.amount : -input.amount;
+      setAccounts((prev) =>
+        prev.map((a) =>
+          a.id === input.accountId
+            ? { ...a, balance: a.balance + delta, lastMovementAt: input.date }
+            : a,
+        ),
+      );
+    }
+    if (input.cardId && input.kind === "despesa") {
+      setCards((prev) =>
+        prev.map((c) =>
+          c.id === input.cardId ? { ...c, currentInvoice: c.currentInvoice + input.amount } : c,
         ),
       );
     }
@@ -86,15 +124,121 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addAccount = useCallback((input: Omit<Account, "id" | "lastMovementAt">) => {
+    setAccounts((prev) => [...prev, { ...input, id: uid(), lastMovementAt: today() }]);
+  }, []);
+
+  const removeAccount = useCallback((id: string) => {
+    setAccounts((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  const transfer = useCallback(
+    (fromId: string, toId: string, amount: number, description = "Transferência") => {
+      setAccounts((prev) =>
+        prev.map((a) => {
+          if (a.id === fromId) return { ...a, balance: a.balance - amount, lastMovementAt: today() };
+          if (a.id === toId) return { ...a, balance: a.balance + amount, lastMovementAt: today() };
+          return a;
+        }),
+      );
+      setTransactions((prev) => [
+        {
+          id: uid(),
+          kind: "transferencia",
+          description,
+          amount,
+          date: today(),
+          accountId: fromId,
+          toAccountId: toId,
+          method: "transferencia",
+          status: "pago",
+        },
+        ...prev,
+      ]);
+    },
+    [],
+  );
+
+  const addCard = useCallback((input: Omit<CreditCard, "id" | "currentInvoice">) => {
+    setCards((prev) => [...prev, { ...input, id: uid(), currentInvoice: 0 }]);
+  }, []);
+
+  const payInvoice = useCallback((cardId: string, accountId: string) => {
+    setCards((prev) => {
+      const card = prev.find((c) => c.id === cardId);
+      if (!card || card.currentInvoice <= 0) return prev;
+      const amount = card.currentInvoice;
+      setAccounts((accs) =>
+        accs.map((a) =>
+          a.id === accountId ? { ...a, balance: a.balance - amount, lastMovementAt: today() } : a,
+        ),
+      );
+      setTransactions((txs) => [
+        {
+          id: uid(),
+          kind: "despesa",
+          description: `Pagamento fatura ${card.name}`,
+          amount,
+          date: today(),
+          accountId,
+          method: "transferencia",
+          status: "pago",
+        },
+        ...txs,
+      ]);
+      return prev.map((c) => (c.id === cardId ? { ...c, currentInvoice: 0 } : c));
+    });
+  }, []);
+
+  const addInvestment = useCallback((input: Omit<Investment, "id">) => {
+    setInvestments((prev) => [...prev, { ...input, id: uid() }]);
+  }, []);
+
+  const removeInvestment = useCallback((id: string) => {
+    setInvestments((prev) => prev.filter((i) => i.id !== id));
+  }, []);
+
+  const addSubscription = useCallback((input: Omit<Subscription, "id">) => {
+    setSubscriptions((prev) => [...prev, { ...input, id: uid() }]);
+  }, []);
+
+  const removeSubscription = useCallback((id: string) => {
+    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
+  }, []);
+
+  const payDebtInstallment = useCallback((id: string) => {
+    setDebts((prev) =>
+      prev.map((d) => {
+        if (d.id !== id || d.installmentsPaid >= d.installmentsTotal) return d;
+        const perInstallment = d.originalAmount / d.installmentsTotal;
+        return {
+          ...d,
+          installmentsPaid: d.installmentsPaid + 1,
+          currentAmount: Math.max(0, Math.round((d.currentAmount - perInstallment) * 100) / 100),
+        };
+      }),
+    );
+  }, []);
+
+  const profile = useMemo(
+    () => ({
+      ...mock.profile,
+      name: user?.name ?? mock.profile.name,
+      fullName: user?.fullName ?? mock.profile.fullName,
+      email: user?.email ?? mock.profile.email,
+    }),
+    [user],
+  );
+
   const value = useMemo<FinanceState>(
     () => ({
-      profile: mock.profile,
+      profile,
       categories: mock.categories,
-      accounts: mock.accounts,
-      cards: mock.cards,
-      investments: mock.investments,
-      debts: mock.debts,
-      subscriptions: mock.subscriptions,
+      accounts,
+      cards,
+      investments,
+      debts,
+      subscriptions,
       transactions,
       budgets,
       goals,
@@ -104,11 +248,27 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       addGoal,
       contributeToGoal,
       setBudgetLimit,
+      addAccount,
+      removeAccount,
+      transfer,
+      addCard,
+      payInvoice,
+      addInvestment,
+      removeInvestment,
+      addSubscription,
+      removeSubscription,
+      payDebtInstallment,
       categoryById: (id?: string) => mock.categories.find((c) => c.id === id),
-      accountById: (id?: string) => mock.accounts.find((a) => a.id === id),
-      cardById: (id?: string) => mock.cards.find((c) => c.id === id),
+      accountById: (id?: string) => accounts.find((a) => a.id === id),
+      cardById: (id?: string) => cards.find((c) => c.id === id),
     }),
     [
+      profile,
+      accounts,
+      cards,
+      investments,
+      debts,
+      subscriptions,
       transactions,
       budgets,
       goals,
@@ -118,6 +278,16 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       addGoal,
       contributeToGoal,
       setBudgetLimit,
+      addAccount,
+      removeAccount,
+      transfer,
+      addCard,
+      payInvoice,
+      addInvestment,
+      removeInvestment,
+      addSubscription,
+      removeSubscription,
+      payDebtInstallment,
     ],
   );
 
