@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LineChart, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { AddInvestmentDialog } from "@/components/entity-dialogs";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatCard, Surface } from "@/components/finance-ui";
 import { CategoryDonut } from "@/components/charts";
@@ -51,7 +51,7 @@ function InvestimentosPage() {
         title="Investimentos"
         subtitle="Sua carteira consolidada, pronta para integrar cotações em tempo real."
         actions={
-          <Button className="gap-2" onClick={() => toast.success("Novo ativo adicionado ao rascunho")}>
+          <Button className="gap-2" onClick={() => setNewOpen(true)}>
             <Plus className="size-4" />
             Novo ativo
           </Button>
