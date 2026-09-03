@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -24,15 +25,38 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  function submit(message: string) {
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function finish(action: () => void, message: string) {
     setLoading(true);
     setTimeout(() => {
+      action();
       setLoading(false);
       toast.success(message);
-      navigate({ to: "/" });
-    }, 600);
+      navigate({ to: "/", replace: true });
+    }, 400);
+  }
+
+  function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    if (!loginEmail.includes("@")) return toast.error("Informe um e-mail válido");
+    if (loginPassword.length < 4) return toast.error("Senha deve ter ao menos 4 caracteres");
+    finish(() => signIn(loginEmail, loginPassword), "Login realizado");
+  }
+
+  function handleSignUp(event: FormEvent) {
+    event.preventDefault();
+    if (name.trim().length < 2) return toast.error("Informe seu nome");
+    if (!email.includes("@")) return toast.error("Informe um e-mail válido");
+    if (password.length < 4) return toast.error("Senha deve ter ao menos 4 caracteres");
+    finish(() => signUp(name, email, password), `Conta criada. Bem-vindo(a), ${name.split(" ")[0]}!`);
   }
 
   return (
@@ -58,9 +82,9 @@ function LoginPage() {
 
       <div className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-semibold tracking-tight">Bem-vinda de volta</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Acesse sua conta</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Entre para continuar acompanhando suas finanças.
+            Entre ou crie sua conta para continuar.
           </p>
 
           <Tabs defaultValue="entrar" className="mt-8">
@@ -69,42 +93,79 @@ function LoginPage() {
               <TabsTrigger value="criar" className="flex-1">Criar conta</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="entrar" className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="login-email">E-mail</Label>
-                <Input id="login-email" type="email" placeholder="voce@email.com" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="login-password">Senha</Label>
-                <Input id="login-password" type="password" placeholder="••••••••" />
-              </div>
-              <button
-                className="text-xs text-muted-foreground hover:text-foreground"
-                onClick={() => toast.info("Enviamos um link de recuperação para seu e-mail")}
-              >
-                Esqueci minha senha
-              </button>
-              <Button className="w-full" disabled={loading} onClick={() => submit("Login realizado")}>
-                {loading ? "Entrando..." : "Entrar"}
-              </Button>
+            <TabsContent value="entrar" className="mt-6">
+              <form className="space-y-4" onSubmit={handleLogin}>
+                <div className="space-y-1.5">
+                  <Label htmlFor="login-email">E-mail</Label>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="voce@email.com"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="login-password">Senha</Label>
+                  <Input
+                    id="login-password"
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => toast.info("Enviamos um link de recuperação para seu e-mail")}
+                >
+                  Esqueci minha senha
+                </button>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Entrando..." : "Entrar"}
+                </Button>
+              </form>
             </TabsContent>
 
-            <TabsContent value="criar" className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="signup-name">Nome</Label>
-                <Input id="signup-name" placeholder="Seu nome" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="signup-email">E-mail</Label>
-                <Input id="signup-email" type="email" placeholder="voce@email.com" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="signup-password">Senha</Label>
-                <Input id="signup-password" type="password" placeholder="••••••••" />
-              </div>
-              <Button className="w-full" disabled={loading} onClick={() => submit("Conta criada")}>
-                {loading ? "Criando..." : "Criar conta"}
-              </Button>
+            <TabsContent value="criar" className="mt-6">
+              <form className="space-y-4" onSubmit={handleSignUp}>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-name">Nome</Label>
+                  <Input
+                    id="signup-name"
+                    placeholder="Seu nome"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-email">E-mail</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="voce@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-password">Senha</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Criando..." : "Criar conta"}
+                </Button>
+              </form>
             </TabsContent>
           </Tabs>
 
