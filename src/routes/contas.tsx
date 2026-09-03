@@ -31,6 +31,8 @@ export const Route = createFileRoute("/contas")({
 function ContasPage() {
   const { accounts, transactions } = useFinance();
   const [selected, setSelected] = useState(accounts[0]?.id ?? "");
+  const [newAccountOpen, setNewAccountOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const account = accounts.find((a) => a.id === selected) ?? accounts[0];
   const total = accounts.reduce((s, a) => s + a.balance, 0);
