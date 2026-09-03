@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HandCoins } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, ProgressBar, StatCard, Surface } from "@/components/finance-ui";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useFinance } from "@/lib/finance-store";
 import { formatCurrency, formatDate } from "@/lib/format";
 
