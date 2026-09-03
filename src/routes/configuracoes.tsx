@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
 import { PageHeader, Surface } from "@/components/finance-ui";
 import { useFinance } from "@/lib/finance-store";
 import { useTheme } from "@/lib/theme";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({
@@ -34,6 +36,9 @@ export const Route = createFileRoute("/configuracoes")({
 function ConfiguracoesPage() {
   const { profile, categories, accounts } = useFinance();
   const { theme, setTheme } = useTheme();
+  const { updateProfile, signOut } = useAuth();
+  const [fullName, setFullName] = useState(profile.fullName);
+  const [email, setEmail] = useState(profile.email);
 
   return (
     <>
@@ -44,13 +49,26 @@ function ConfiguracoesPage() {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="name">Nome completo</Label>
-              <Input id="name" defaultValue={profile.fullName} />
+              <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" defaultValue={profile.email} />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <Button onClick={() => toast.success("Perfil atualizado")}>Salvar alterações</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={() => {
+                  if (fullName.trim().length < 2) return toast.error("Informe seu nome");
+                  updateProfile({ fullName: fullName.trim(), email: email.trim() });
+                  toast.success("Perfil atualizado");
+                }}
+              >
+                Salvar alterações
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                Sair da conta
+              </Button>
+            </div>
           </div>
         </Surface>
 
