@@ -23,7 +23,7 @@ export const Route = createFileRoute("/dividas")({
 });
 
 function DividasPage() {
-  const { debts } = useFinance();
+  const { debts, payDebtInstallment } = useFinance();
 
   const original = debts.reduce((s, d) => s + d.originalAmount, 0);
   const restante = debts.reduce((s, d) => s + d.currentAmount, 0);
