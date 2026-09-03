@@ -134,6 +134,9 @@ function ContasPage() {
           </Surface>
         </div>
       </div>
+
+      <AddAccountDialog open={newAccountOpen} onOpenChange={setNewAccountOpen} />
+      <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
     </>
   );
 }
