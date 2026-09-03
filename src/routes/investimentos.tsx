@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LineChart, Plus } from "lucide-react";
 import { AddInvestmentDialog } from "@/components/entity-dialogs";
@@ -32,6 +33,7 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 function InvestimentosPage() {
+  const [newOpen, setNewOpen] = useState(false);
   const { investments } = useFinance();
 
   const invested = investments.reduce((s, i) => s + i.invested, 0);
@@ -115,6 +117,8 @@ function InvestimentosPage() {
           </ul>
         </Surface>
       </div>
+
+      <AddInvestmentDialog open={newOpen} onOpenChange={setNewOpen} />
     </>
   );
 }
