@@ -87,6 +87,20 @@ function DividasPage() {
                   />
                 ))}
               </div>
+
+              <div className="mt-5">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={d.installmentsPaid >= d.installmentsTotal}
+                  onClick={() => {
+                    payDebtInstallment(d.id);
+                    toast.success(`Parcela de ${d.creditor} registrada como paga`);
+                  }}
+                >
+                  Pagar parcela
+                </Button>
+              </div>
             </Surface>
           );
         })}
