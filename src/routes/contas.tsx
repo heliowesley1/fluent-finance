@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeftRight, Building2, Plus, Wallet } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { AddAccountDialog, TransferDialog } from "@/components/entity-dialogs";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader, StatCard, Surface } from "@/components/finance-ui";
 import { EvolutionChart } from "@/components/charts";
@@ -31,6 +31,8 @@ export const Route = createFileRoute("/contas")({
 function ContasPage() {
   const { accounts, transactions } = useFinance();
   const [selected, setSelected] = useState(accounts[0]?.id ?? "");
+  const [newAccountOpen, setNewAccountOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const account = accounts.find((a) => a.id === selected) ?? accounts[0];
   const total = accounts.reduce((s, a) => s + a.balance, 0);
@@ -56,16 +58,12 @@ function ContasPage() {
         title="Contas"
         subtitle="Saldos consolidados e histórico por conta."
         actions={
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => toast.info("Transferência entre contas em breve")}
-            >
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setTransferOpen(true)}>
               <ArrowLeftRight className="size-4" />
               Transferir
             </Button>
-            <Button className="gap-2" onClick={() => toast.success("Nova conta adicionada ao rascunho")}>
+            <Button className="gap-2" onClick={() => setNewAccountOpen(true)}>
               <Plus className="size-4" />
               Nova conta
             </Button>
@@ -136,6 +134,9 @@ function ContasPage() {
           </Surface>
         </div>
       </div>
+
+      <AddAccountDialog open={newAccountOpen} onOpenChange={setNewAccountOpen} />
+      <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
     </>
   );
 }

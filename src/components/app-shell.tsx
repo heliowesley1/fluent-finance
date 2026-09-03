@@ -181,9 +181,32 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Alternar tema">
             {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </Button>
-          <span className="grid size-9 place-items-center rounded-full bg-muted text-sm font-semibold">
-            {profile.name.slice(0, 1)}
-          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="Conta"
+                className="grid size-9 place-items-center rounded-full bg-muted text-sm font-semibold transition-colors hover:bg-accent"
+              >
+                {profile.name.slice(0, 1).toUpperCase()}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="truncate">
+                {profile.fullName}
+                <span className="block truncate text-[11px] font-normal text-muted-foreground">
+                  {profile.email}
+                </span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/configuracoes">Configurações</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={signOut}>
+                <LogOut className="size-4" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <main className="pb-24 lg:pb-10 lg:pl-64">

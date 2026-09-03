@@ -66,17 +66,17 @@ export function StatCard({
   footer?: ReactNode;
 }) {
   return (
-    <div className="surface group p-5 transition-shadow hover:shadow-[var(--shadow-float)]">
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+    <div className="surface group min-w-0 p-4 transition-shadow hover:shadow-[var(--shadow-float)] sm:p-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+        <span className="min-w-0 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
           {label}
         </span>
         {Icon && <Icon className="size-4 shrink-0 text-muted-foreground" />}
       </div>
-      <div className="mt-2 flex flex-wrap items-baseline gap-2">
+      <div className="mt-2 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
         <span
           className={cn(
-            "num text-2xl font-semibold",
+            "num max-w-full text-[clamp(1.05rem,1.6vw,1.5rem)] leading-tight font-semibold tracking-tight break-words",
             tone === "positive" && "text-success",
             tone === "negative" && "text-destructive",
           )}

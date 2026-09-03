@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CreditCard as CreditCardIcon, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { AddCardDialog, PayInvoiceDialog } from "@/components/entity-dialogs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader, ProgressBar, StatCard, Surface } from "@/components/finance-ui";
@@ -29,6 +30,8 @@ export const Route = createFileRoute("/cartoes")({
 function CartoesPage() {
   const { cards, transactions, categoryById } = useFinance();
   const [selected, setSelected] = useState(cards[0]?.id ?? "");
+  const [newCardOpen, setNewCardOpen] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
   const card = cards.find((c) => c.id === selected) ?? cards[0];
 
   const totalInvoice = cards.reduce((s, c) => s + c.currentInvoice, 0);
@@ -41,7 +44,7 @@ function CartoesPage() {
         title="Cartões"
         subtitle="Faturas e limites em tempo real."
         actions={
-          <Button className="gap-2" onClick={() => toast.success("Novo cartão adicionado ao rascunho")}>
+          <Button className="gap-2" onClick={() => setNewCardOpen(true)}>
             <Plus className="size-4" />
             Novo cartão
           </Button>
@@ -123,10 +126,10 @@ function CartoesPage() {
                 tone={card.currentInvoice / card.limit > 0.8 ? "destructive" : "primary"}
               />
               <div className="mt-5 flex flex-wrap gap-2">
-                <Button onClick={() => toast.success("Pagamento de fatura registrado")}>
+                <Button onClick={() => setPayOpen(true)}>
                   Pagar fatura
                 </Button>
-                <Button variant="outline" onClick={() => toast.info("Estorno solicitado")}>
+                <Button variant="outline" onClick={() => toast.info("Estorno solicitado — acompanhe pelo app do banco")}>
                   Solicitar estorno
                 </Button>
               </div>
@@ -152,6 +155,9 @@ function CartoesPage() {
           </Surface>
         </div>
       </div>
+
+      <AddCardDialog open={newCardOpen} onOpenChange={setNewCardOpen} />
+      {card && <PayInvoiceDialog open={payOpen} onOpenChange={setPayOpen} cardId={card.id} />}
     </>
   );
 }

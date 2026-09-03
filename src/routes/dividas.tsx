@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HandCoins } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, ProgressBar, StatCard, Surface } from "@/components/finance-ui";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useFinance } from "@/lib/finance-store";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -21,7 +23,7 @@ export const Route = createFileRoute("/dividas")({
 });
 
 function DividasPage() {
-  const { debts } = useFinance();
+  const { debts, payDebtInstallment } = useFinance();
 
   const original = debts.reduce((s, d) => s + d.originalAmount, 0);
   const restante = debts.reduce((s, d) => s + d.currentAmount, 0);
@@ -86,6 +88,20 @@ function DividasPage() {
                     }
                   />
                 ))}
+              </div>
+
+              <div className="mt-5">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={d.installmentsPaid >= d.installmentsTotal}
+                  onClick={() => {
+                    payDebtInstallment(d.id);
+                    toast.success(`Parcela de ${d.creditor} registrada como paga`);
+                  }}
+                >
+                  Pagar parcela
+                </Button>
               </div>
             </Surface>
           );

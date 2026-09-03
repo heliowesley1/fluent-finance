@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LineChart, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { AddInvestmentDialog } from "@/components/entity-dialogs";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatCard, Surface } from "@/components/finance-ui";
 import { CategoryDonut } from "@/components/charts";
@@ -32,6 +33,7 @@ const CLASS_COLORS: Record<string, string> = {
 };
 
 function InvestimentosPage() {
+  const [newOpen, setNewOpen] = useState(false);
   const { investments } = useFinance();
 
   const invested = investments.reduce((s, i) => s + i.invested, 0);
@@ -51,7 +53,7 @@ function InvestimentosPage() {
         title="Investimentos"
         subtitle="Sua carteira consolidada, pronta para integrar cotações em tempo real."
         actions={
-          <Button className="gap-2" onClick={() => toast.success("Novo ativo adicionado ao rascunho")}>
+          <Button className="gap-2" onClick={() => setNewOpen(true)}>
             <Plus className="size-4" />
             Novo ativo
           </Button>
@@ -115,6 +117,8 @@ function InvestimentosPage() {
           </ul>
         </Surface>
       </div>
+
+      <AddInvestmentDialog open={newOpen} onOpenChange={setNewOpen} />
     </>
   );
 }
