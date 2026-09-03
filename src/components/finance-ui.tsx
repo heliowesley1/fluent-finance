@@ -76,7 +76,7 @@ export function StatCard({
       <div className="mt-2 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
         <span
           className={cn(
-            "num max-w-full truncate text-xl font-semibold tracking-tight sm:text-[1.35rem] xl:text-2xl",
+            "num max-w-full text-[clamp(1.05rem,1.6vw,1.5rem)] leading-tight font-semibold tracking-tight break-words",
             tone === "positive" && "text-success",
             tone === "negative" && "text-destructive",
           )}
