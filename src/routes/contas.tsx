@@ -58,16 +58,12 @@ function ContasPage() {
         title="Contas"
         subtitle="Saldos consolidados e histórico por conta."
         actions={
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => toast.info("Transferência entre contas em breve")}
-            >
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setTransferOpen(true)}>
               <ArrowLeftRight className="size-4" />
               Transferir
             </Button>
-            <Button className="gap-2" onClick={() => toast.success("Nova conta adicionada ao rascunho")}>
+            <Button className="gap-2" onClick={() => setNewAccountOpen(true)}>
               <Plus className="size-4" />
               Nova conta
             </Button>
