@@ -58,7 +58,7 @@ function ConfiguracoesPage() {
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={() => {
-                  if (fullName.trim().length < 2) return toast.error("Informe seu nome");
+                  if (fullName.trim().length < 2) { toast.error("Informe seu nome"); return; }
                   updateProfile({ fullName: fullName.trim(), email: email.trim() });
                   toast.success("Perfil atualizado");
                 }}

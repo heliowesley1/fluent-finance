@@ -46,16 +46,16 @@ function LoginPage() {
 
   function handleLogin(event: FormEvent) {
     event.preventDefault();
-    if (!loginEmail.includes("@")) return toast.error("Informe um e-mail válido");
-    if (loginPassword.length < 4) return toast.error("Senha deve ter ao menos 4 caracteres");
+    if (!loginEmail.includes("@")) { toast.error("Informe um e-mail válido"); return; }
+    if (loginPassword.length < 4) { toast.error("Senha deve ter ao menos 4 caracteres"); return; }
     finish(() => signIn(loginEmail, loginPassword), "Login realizado");
   }
 
   function handleSignUp(event: FormEvent) {
     event.preventDefault();
-    if (name.trim().length < 2) return toast.error("Informe seu nome");
-    if (!email.includes("@")) return toast.error("Informe um e-mail válido");
-    if (password.length < 4) return toast.error("Senha deve ter ao menos 4 caracteres");
+    if (name.trim().length < 2) { toast.error("Informe seu nome"); return; }
+    if (!email.includes("@")) { toast.error("Informe um e-mail válido"); return; }
+    if (password.length < 4) { toast.error("Senha deve ter ao menos 4 caracteres"); return; }
     finish(() => signUp(name, email, password), `Conta criada. Bem-vindo(a), ${name.split(" ")[0]}!`);
   }
 

@@ -44,7 +44,7 @@ export function AddAccountDialog({ open, onOpenChange }: Props) {
   const money = useMoney();
 
   function submit() {
-    if (!name.trim()) return toast.error("Informe o nome da conta");
+    if (!name.trim()) { toast.error("Informe o nome da conta"); return; }
     addAccount({ name: name.trim(), institution: institution.trim() || name.trim(), type, balance: money.number });
     toast.success("Conta criada");
     setName("");
@@ -114,8 +114,8 @@ export function TransferDialog({ open, onOpenChange }: Props) {
   }, [open, accounts]);
 
   function submit() {
-    if (!from || !to || from === to) return toast.error("Escolha contas diferentes");
-    if (money.number <= 0) return toast.error("Informe um valor válido");
+    if (!from || !to || from === to) { toast.error("Escolha contas diferentes"); return; }
+    if (money.number <= 0) { toast.error("Informe um valor válido"); return; }
     transfer(from, to, money.number);
     toast.success(`Transferência de ${formatCurrency(money.number)} concluída`);
     money.reset();
@@ -181,8 +181,8 @@ export function AddCardDialog({ open, onOpenChange }: Props) {
   const money = useMoney();
 
   function submit() {
-    if (!name.trim()) return toast.error("Informe o nome do cartão");
-    if (money.number <= 0) return toast.error("Informe o limite do cartão");
+    if (!name.trim()) { toast.error("Informe o nome do cartão"); return; }
+    if (money.number <= 0) { toast.error("Informe o limite do cartão"); return; }
     addCard({
       name: name.trim(),
       bank: bank.trim() || name.trim(),
@@ -284,8 +284,8 @@ export function PayInvoiceDialog({
 
   function submit() {
     if (!card) return;
-    if (card.currentInvoice <= 0) return toast.info("Esta fatura já está paga");
-    if (!accountId) return toast.error("Escolha uma conta");
+    if (card.currentInvoice <= 0) { toast.info("Esta fatura já está paga"); return; }
+    if (!accountId) { toast.error("Escolha uma conta"); return; }
     payInvoice(card.id, accountId);
     toast.success(`Fatura de ${formatCurrency(card.currentInvoice)} paga`);
     onOpenChange(false);
@@ -333,8 +333,8 @@ export function AddInvestmentDialog({ open, onOpenChange }: Props) {
   const current = useMoney();
 
   function submit() {
-    if (!name.trim()) return toast.error("Informe o nome do ativo");
-    if (invested.number <= 0) return toast.error("Informe o valor investido");
+    if (!name.trim()) { toast.error("Informe o nome do ativo"); return; }
+    if (invested.number <= 0) { toast.error("Informe o valor investido"); return; }
     addInvestment({
       name: name.trim(),
       ...(ticker.trim() ? { ticker: ticker.trim().toUpperCase() } : {}),
