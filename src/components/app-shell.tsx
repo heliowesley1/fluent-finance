@@ -161,7 +161,25 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Nexus Finance
               </SheetTitle>
               <NavLinks onNavigate={() => setDrawerOpen(false)} />
+              <div className="mt-4 border-t pt-4">
+                <div className="px-3 pb-2">
+                  <p className="truncate text-sm font-medium">{profile.fullName}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">{profile.email}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-2"
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    signOut();
+                  }}
+                >
+                  <LogOut className="size-4" />
+                  Sair da conta
+                </Button>
+              </div>
             </SheetContent>
+
           </Sheet>
 
           <span className="truncate font-semibold tracking-tight">Nexus Finance</span>
