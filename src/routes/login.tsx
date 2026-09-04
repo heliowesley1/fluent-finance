@@ -28,11 +28,6 @@ function LoginPage() {
   const { signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   function finish(action: () => void, message: string) {
     setLoading(true);
@@ -44,15 +39,22 @@ function LoginPage() {
     }, 400);
   }
 
-  function handleLogin(event: FormEvent) {
+  function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const loginEmail = String(data.get("email") ?? "").trim();
+    const loginPassword = String(data.get("password") ?? "");
     if (!loginEmail.includes("@")) { toast.error("Informe um e-mail válido"); return; }
     if (loginPassword.length < 4) { toast.error("Senha deve ter ao menos 4 caracteres"); return; }
     finish(() => signIn(loginEmail, loginPassword), "Login realizado");
   }
 
-  function handleSignUp(event: FormEvent) {
+  function handleSignUp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const password = String(data.get("password") ?? "");
     if (name.trim().length < 2) { toast.error("Informe seu nome"); return; }
     if (!email.includes("@")) { toast.error("Informe um e-mail válido"); return; }
     if (password.length < 4) { toast.error("Senha deve ter ao menos 4 caracteres"); return; }
@@ -99,22 +101,20 @@ function LoginPage() {
                   <Label htmlFor="login-email">E-mail</Label>
                   <Input
                     id="login-email"
+                    name="email"
                     type="email"
                     autoComplete="email"
                     placeholder="voce@email.com"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="login-password">Senha</Label>
                   <Input
                     id="login-password"
+                    name="password"
                     type="password"
                     autoComplete="current-password"
                     placeholder="••••••••"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
                   />
                 </div>
                 <button
@@ -136,30 +136,27 @@ function LoginPage() {
                   <Label htmlFor="signup-name">Nome</Label>
                   <Input
                     id="signup-name"
+                    name="name"
                     placeholder="Seu nome"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="signup-email">E-mail</Label>
                   <Input
                     id="signup-email"
+                    name="email"
                     type="email"
                     placeholder="voce@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="signup-password">Senha</Label>
                   <Input
                     id="signup-password"
+                    name="password"
                     type="password"
                     autoComplete="new-password"
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
