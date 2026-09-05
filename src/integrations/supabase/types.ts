@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      finance_data: {
+        Row: {
+          accounts: Json
+          budgets: Json
+          cards: Json
+          created_at: string
+          debts: Json
+          goals: Json
+          investments: Json
+          subscriptions: Json
+          transactions: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accounts?: Json
+          budgets?: Json
+          cards?: Json
+          created_at?: string
+          debts?: Json
+          goals?: Json
+          investments?: Json
+          subscriptions?: Json
+          transactions?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accounts?: Json
+          budgets?: Json
+          cards?: Json
+          created_at?: string
+          debts?: Json
+          goals?: Json
+          investments?: Json
+          subscriptions?: Json
+          transactions?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
