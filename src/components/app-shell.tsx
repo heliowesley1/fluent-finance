@@ -64,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const bare = pathname === "/login";
+  const bare = pathname === "/login" || pathname === "/reset-password";
 
   useEffect(() => {
     if (!ready) return;
@@ -171,7 +171,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className="w-full justify-start gap-2"
                   onClick={() => {
                     setDrawerOpen(false);
-                    signOut();
+                    void signOut();
                   }}
                 >
                   <LogOut className="size-4" />
@@ -219,7 +219,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <DropdownMenuItem asChild>
                 <Link to="/configuracoes">Configurações</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={signOut}>
+              <DropdownMenuItem onClick={() => void signOut()}>
                 <LogOut className="size-4" />
                 Sair
               </DropdownMenuItem>

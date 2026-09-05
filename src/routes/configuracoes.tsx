@@ -36,9 +36,13 @@ export const Route = createFileRoute("/configuracoes")({
 function ConfiguracoesPage() {
   const { profile, categories, accounts } = useFinance();
   const { theme, setTheme } = useTheme();
-  const { updateProfile, signOut } = useAuth();
+  const { user, updateProfile, updatePassword, signOut } = useAuth();
   const [fullName, setFullName] = useState(profile.fullName);
   const [email, setEmail] = useState(profile.email);
+  const [currency, setCurrency] = useState(user?.currency ?? "BRL");
+  const [dateFormat, setDateFormat] = useState(user?.dateFormat ?? "DD/MM/YYYY");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   return (
     <>
@@ -57,15 +61,19 @@ function ConfiguracoesPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
-                onClick={() => {
+                onClick={async () => {
                   if (fullName.trim().length < 2) { toast.error("Informe seu nome"); return; }
-                  updateProfile({ fullName: fullName.trim(), email: email.trim() });
-                  toast.success("Perfil atualizado");
+                  try {
+                    await updateProfile({ fullName: fullName.trim(), email: email.trim(), currency, dateFormat });
+                    toast.success("Perfil atualizado");
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "Não foi possível atualizar o perfil");
+                  }
                 }}
               >
                 Salvar alterações
               </Button>
-              <Button variant="outline" onClick={signOut}>
+              <Button variant="outline" onClick={() => void signOut()}>
                 Sair da conta
               </Button>
             </div>
@@ -87,7 +95,7 @@ function ConfiguracoesPage() {
             </div>
             <div className="space-y-1.5">
               <Label>Moeda</Label>
-              <Select defaultValue="BRL">
+              <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BRL">BRL — R$</SelectItem>
@@ -98,7 +106,7 @@ function ConfiguracoesPage() {
             </div>
             <div className="space-y-1.5">
               <Label>Formato de data</Label>
-              <Select defaultValue="DD/MM/YYYY">
+              <Select value={dateFormat} onValueChange={setDateFormat}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
@@ -128,14 +136,28 @@ function ConfiguracoesPage() {
         <Surface title="Segurança">
           <div className="space-y-4">
             <div className="space-y-1.5">
+              <Label htmlFor="current-password">Senha atual</Label>
+              <Input id="current-password" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} placeholder="••••••••" />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="password">Nova senha</Label>
-              <Input id="password" type="password" placeholder="••••••••" />
+              <Input id="password" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} placeholder="••••••••" />
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-muted-foreground">Autenticação em duas etapas</span>
               <Switch />
             </div>
-            <Button variant="outline" onClick={() => toast.success("Senha atualizada")}>
+            <Button variant="outline" onClick={async () => {
+              if (!currentPassword || newPassword.length < 6) { toast.error("Informe a senha atual e uma nova senha com 6 caracteres"); return; }
+              try {
+                await updatePassword(newPassword, currentPassword);
+                setCurrentPassword("");
+                setNewPassword("");
+                toast.success("Senha atualizada");
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Não foi possível atualizar a senha");
+              }
+            }}>
               Atualizar senha
             </Button>
           </div>

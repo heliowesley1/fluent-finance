@@ -1,6 +1,8 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as mock from "./mock-data";
 import { useAuth } from "./auth";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import type {
   Account,
   Budget,
@@ -57,6 +59,7 @@ function today() {
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const hydratedUserId = useRef<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>(mock.transactions);
   const [budgets, setBudgets] = useState<Budget[]>(mock.budgets);
   const [goals, setGoals] = useState<Goal[]>(mock.goals);
@@ -65,6 +68,67 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   const [investments, setInvestments] = useState<Investment[]>(mock.investments);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(mock.subscriptions);
   const [debts, setDebts] = useState<Debt[]>(mock.debts);
+
+  useEffect(() => {
+    if (!user) {
+      hydratedUserId.current = null;
+      return;
+    }
+    let active = true;
+    const load = async () => {
+      const { data, error } = await supabase.from("finance_data").select("*").eq("user_id", user.id).maybeSingle();
+      if (!active) return;
+      if (error) {
+        console.error("Não foi possível carregar os dados financeiros", error);
+        return;
+      }
+      if (data) {
+        setAccounts(data.accounts as unknown as Account[]);
+        setCards(data.cards as unknown as CreditCard[]);
+        setTransactions(data.transactions as unknown as Transaction[]);
+        setBudgets(data.budgets as unknown as Budget[]);
+        setGoals(data.goals as unknown as Goal[]);
+        setInvestments(data.investments as unknown as Investment[]);
+        setDebts(data.debts as unknown as Debt[]);
+        setSubscriptions(data.subscriptions as unknown as Subscription[]);
+      } else {
+        const { error: insertError } = await supabase.from("finance_data").insert({
+          user_id: user.id,
+          accounts: mock.accounts as unknown as Json,
+          cards: mock.cards as unknown as Json,
+          transactions: mock.transactions as unknown as Json,
+          budgets: mock.budgets as unknown as Json,
+          goals: mock.goals as unknown as Json,
+          investments: mock.investments as unknown as Json,
+          debts: mock.debts as unknown as Json,
+          subscriptions: mock.subscriptions as unknown as Json,
+        });
+        if (insertError) console.error("Não foi possível criar os dados financeiros", insertError);
+      }
+      hydratedUserId.current = user.id;
+    };
+    void load();
+    return () => { active = false; };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || hydratedUserId.current !== user.id) return;
+    const timer = window.setTimeout(() => {
+      void supabase.from("finance_data").update({
+        accounts: accounts as unknown as Json,
+        cards: cards as unknown as Json,
+        transactions: transactions as unknown as Json,
+        budgets: budgets as unknown as Json,
+        goals: goals as unknown as Json,
+        investments: investments as unknown as Json,
+        debts: debts as unknown as Json,
+        subscriptions: subscriptions as unknown as Json,
+      }).eq("user_id", user.id).then(({ error }) => {
+        if (error) console.error("Não foi possível salvar os dados financeiros", error);
+      });
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [user, accounts, cards, transactions, budgets, goals, investments, debts, subscriptions]);
 
   const addTransaction = useCallback((input: Omit<Transaction, "id">) => {
     setTransactions((prev) => [{ ...input, id: uid() }, ...prev]);
@@ -222,10 +286,11 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   const profile = useMemo(
     () => ({
-      ...mock.profile,
-      name: user?.name ?? mock.profile.name,
-      fullName: user?.fullName ?? mock.profile.fullName,
-      email: user?.email ?? mock.profile.email,
+      name: user?.name ?? "Você",
+      fullName: user?.fullName ?? "",
+      email: user?.email ?? "",
+      currency: user?.currency ?? "BRL",
+      dateFormat: user?.dateFormat ?? "DD/MM/YYYY",
     }),
     [user],
   );
