@@ -25,31 +25,29 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const [loading, setLoading] = useState(false);
 
-
-  function finish(action: () => void, message: string) {
-    setLoading(true);
-    setTimeout(() => {
-      action();
-      setLoading(false);
-      toast.success(message);
-      navigate({ to: "/", replace: true });
-    }, 400);
-  }
-
-  function handleLogin(event: FormEvent<HTMLFormElement>) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const loginEmail = String(data.get("email") ?? "").trim();
     const loginPassword = String(data.get("password") ?? "");
     if (!loginEmail.includes("@")) { toast.error("Informe um e-mail válido"); return; }
-    if (loginPassword.length < 4) { toast.error("Senha deve ter ao menos 4 caracteres"); return; }
-    finish(() => signIn(loginEmail, loginPassword), "Login realizado");
+    if (loginPassword.length < 6) { toast.error("Senha deve ter ao menos 6 caracteres"); return; }
+    setLoading(true);
+    try {
+      await signIn(loginEmail, loginPassword);
+      toast.success("Login realizado");
+      navigate({ to: "/", replace: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível entrar");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function handleSignUp(event: FormEvent<HTMLFormElement>) {
+  async function handleSignUp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
@@ -57,8 +55,36 @@ function LoginPage() {
     const password = String(data.get("password") ?? "");
     if (name.trim().length < 2) { toast.error("Informe seu nome"); return; }
     if (!email.includes("@")) { toast.error("Informe um e-mail válido"); return; }
-    if (password.length < 4) { toast.error("Senha deve ter ao menos 4 caracteres"); return; }
-    finish(() => signUp(name, email, password), `Conta criada. Bem-vindo(a), ${name.split(" ")[0]}!`);
+    if (password.length < 6) { toast.error("Senha deve ter ao menos 6 caracteres"); return; }
+    setLoading(true);
+    try {
+      const result = await signUp(name, email, password);
+      if (result === "confirm-email") {
+        toast.success("Conta criada. Confirme seu e-mail para entrar.");
+      } else {
+        toast.success(`Conta criada. Bem-vindo(a), ${name.split(" ")[0]}!`);
+        navigate({ to: "/", replace: true });
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível criar a conta");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleForgotPassword(event: FormEvent<HTMLFormElement>) {
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") ?? "").trim();
+    if (!email.includes("@")) { toast.error("Informe seu e-mail acima"); return; }
+    setLoading(true);
+    try {
+      await resetPassword(email);
+      toast.success("Enviamos o link de recuperação para seu e-mail");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível enviar o link");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -120,7 +146,10 @@ function LoginPage() {
                 <button
                   type="button"
                   className="text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => toast.info("Enviamos um link de recuperação para seu e-mail")}
+                  onClick={(event) => {
+                    const form = event.currentTarget.form;
+                    if (form) void handleForgotPassword({ currentTarget: form } as FormEvent<HTMLFormElement>);
+                  }}
                 >
                   Esqueci minha senha
                 </button>
@@ -175,7 +204,16 @@ function LoginPage() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => toast.info("Google Login será conectado ao backend")}
+            disabled={loading}
+            onClick={async () => {
+              setLoading(true);
+              try {
+                await signInWithGoogle();
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : "Não foi possível entrar com Google");
+                setLoading(false);
+              }
+            }}
           >
             Continuar com Google
           </Button>
