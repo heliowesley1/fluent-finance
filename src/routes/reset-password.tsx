@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { KeyRound } from "lucide-react";
 import { toast } from "sonner";
@@ -23,6 +23,13 @@ function ResetPasswordPage() {
   const { updatePassword } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [validRecovery, setValidRecovery] = useState(false);
+
+  useEffect(() => {
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const query = new URLSearchParams(window.location.search);
+    setValidRecovery(hash.get("type") === "recovery" || query.get("type") === "recovery");
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,12 +55,12 @@ function ResetPasswordPage() {
       <div className="w-full max-w-sm">
         <span className="mb-6 grid size-10 place-items-center rounded-lg bg-primary text-primary-foreground"><KeyRound className="size-5" /></span>
         <h1 className="text-2xl font-semibold">Crie uma nova senha</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Use uma senha com pelo menos 6 caracteres.</p>
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+        <p className="mt-1 text-sm text-muted-foreground">{validRecovery ? "Use uma senha com pelo menos 6 caracteres." : "Abra esta página pelo link enviado ao seu e-mail."}</p>
+        {validRecovery ? <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1.5"><Label htmlFor="new-password">Nova senha</Label><Input id="new-password" name="password" type="password" autoComplete="new-password" /></div>
           <div className="space-y-1.5"><Label htmlFor="confirmation">Confirmar senha</Label><Input id="confirmation" name="confirmation" type="password" autoComplete="new-password" /></div>
           <Button className="w-full" type="submit" disabled={loading}>{loading ? "Atualizando..." : "Atualizar senha"}</Button>
-        </form>
+        </form> : <Button className="mt-8 w-full" variant="outline" onClick={() => navigate({ to: "/login" })}>Voltar para entrar</Button>}
       </div>
     </div>
   );
