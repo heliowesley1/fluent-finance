@@ -47,6 +47,17 @@ interface FinanceState {
   cardById: (id?: string) => CreditCard | undefined;
 }
 
+interface FinanceSnapshot {
+  accounts: Account[];
+  cards: CreditCard[];
+  transactions: Transaction[];
+  budgets: Budget[];
+  goals: Goal[];
+  investments: Investment[];
+  debts: Debt[];
+  subscriptions: Subscription[];
+}
+
 const FinanceContext = createContext<FinanceState | null>(null);
 
 function uid() {
@@ -60,6 +71,7 @@ function today() {
 export function FinanceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const hydratedUserId = useRef<string | null>(null);
+  const mutationVersion = useRef(0);
   const [transactions, setTransactions] = useState<Transaction[]>(mock.transactions);
   const [budgets, setBudgets] = useState<Budget[]>(mock.budgets);
   const [goals, setGoals] = useState<Goal[]>(mock.goals);
@@ -76,6 +88,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }
     let active = true;
     const load = async () => {
+      const loadVersion = mutationVersion.current;
       const { data, error } = await supabase.from("finance_data").select("*").eq("user_id", user.id).maybeSingle();
       if (!active) return;
       if (error) {
@@ -83,6 +96,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (data) {
+        if (mutationVersion.current !== loadVersion) return;
         setAccounts(data.accounts as unknown as Account[]);
         setCards(data.cards as unknown as CreditCard[]);
         setTransactions(data.transactions as unknown as Transaction[]);
@@ -111,6 +125,14 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, [user]);
 
+  const mutate = useCallback(<K extends keyof FinanceSnapshot>(
+    setter: React.Dispatch<React.SetStateAction<FinanceSnapshot[K]>>,
+    update: React.SetStateAction<FinanceSnapshot[K]>,
+  ) => {
+    mutationVersion.current += 1;
+    setter(update);
+  }, []);
+
   useEffect(() => {
     if (!user || hydratedUserId.current !== user.id) return;
     const timer = window.setTimeout(() => {
@@ -131,9 +153,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   }, [user, accounts, cards, transactions, budgets, goals, investments, debts, subscriptions]);
 
   const addTransaction = useCallback((input: Omit<Transaction, "id">) => {
-    setTransactions((prev) => [{ ...input, id: uid() }, ...prev]);
+    mutate(setTransactions, (prev) => [{ ...input, id: uid() }, ...prev]);
     if (input.kind === "despesa" && input.categoryId) {
-      setBudgets((prev) =>
+      mutate(setBudgets, (prev) =>
         prev.map((b) =>
           b.categoryId === input.categoryId ? { ...b, spent: b.spent + input.amount } : b,
         ),
@@ -141,7 +163,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }
     if (input.accountId) {
       const delta = input.kind === "receita" ? input.amount : -input.amount;
-      setAccounts((prev) =>
+      mutate(setAccounts, (prev) =>
         prev.map((a) =>
           a.id === input.accountId
             ? { ...a, balance: a.balance + delta, lastMovementAt: input.date }
@@ -150,62 +172,62 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       );
     }
     if (input.cardId && input.kind === "despesa") {
-      setCards((prev) =>
+      mutate(setCards, (prev) =>
         prev.map((c) =>
           c.id === input.cardId ? { ...c, currentInvoice: c.currentInvoice + input.amount } : c,
         ),
       );
     }
-  }, []);
+  }, [mutate]);
 
   const updateTransaction = useCallback((id: string, patch: Partial<Transaction>) => {
-    setTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-  }, []);
+    mutate(setTransactions, (prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  }, [mutate]);
 
   const removeTransaction = useCallback((id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+    mutate(setTransactions, (prev) => prev.filter((t) => t.id !== id));
+  }, [mutate]);
 
   const addGoal = useCallback((goal: Omit<Goal, "id">) => {
-    setGoals((prev) => [...prev, { ...goal, id: uid() }]);
-  }, []);
+    mutate(setGoals, (prev) => [...prev, { ...goal, id: uid() }]);
+  }, [mutate]);
 
   const contributeToGoal = useCallback((id: string, amount: number) => {
-    setGoals((prev) =>
+    mutate(setGoals, (prev) =>
       prev.map((g) =>
         g.id === id ? { ...g, current: Math.min(g.target, g.current + amount) } : g,
       ),
     );
-  }, []);
+  }, [mutate]);
 
   const setBudgetLimit = useCallback((categoryId: string, limit: number) => {
-    setBudgets((prev) => {
+    mutate(setBudgets, (prev) => {
       const exists = prev.some((b) => b.categoryId === categoryId);
       if (exists) {
         return prev.map((b) => (b.categoryId === categoryId ? { ...b, limit } : b));
       }
       return [...prev, { id: uid(), categoryId, limit, spent: 0 }];
     });
-  }, []);
+  }, [mutate]);
 
   const addAccount = useCallback((input: Omit<Account, "id" | "lastMovementAt">) => {
-    setAccounts((prev) => [...prev, { ...input, id: uid(), lastMovementAt: today() }]);
-  }, []);
+    mutate(setAccounts, (prev) => [...prev, { ...input, id: uid(), lastMovementAt: today() }]);
+  }, [mutate]);
 
   const removeAccount = useCallback((id: string) => {
-    setAccounts((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+    mutate(setAccounts, (prev) => prev.filter((a) => a.id !== id));
+  }, [mutate]);
 
   const transfer = useCallback(
     (fromId: string, toId: string, amount: number, description = "Transferência") => {
-      setAccounts((prev) =>
+      mutate(setAccounts, (prev) =>
         prev.map((a) => {
           if (a.id === fromId) return { ...a, balance: a.balance - amount, lastMovementAt: today() };
           if (a.id === toId) return { ...a, balance: a.balance + amount, lastMovementAt: today() };
           return a;
         }),
       );
-      setTransactions((prev) => [
+      mutate(setTransactions, (prev) => [
         {
           id: uid(),
           kind: "transferencia",
@@ -220,24 +242,24 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         ...prev,
       ]);
     },
-    [],
+    [mutate],
   );
 
   const addCard = useCallback((input: Omit<CreditCard, "id" | "currentInvoice">) => {
-    setCards((prev) => [...prev, { ...input, id: uid(), currentInvoice: 0 }]);
-  }, []);
+    mutate(setCards, (prev) => [...prev, { ...input, id: uid(), currentInvoice: 0 }]);
+  }, [mutate]);
 
   const payInvoice = useCallback((cardId: string, accountId: string) => {
-    setCards((prev) => {
+    mutate(setCards, (prev) => {
       const card = prev.find((c) => c.id === cardId);
       if (!card || card.currentInvoice <= 0) return prev;
       const amount = card.currentInvoice;
-      setAccounts((accs) =>
+      mutate(setAccounts, (accs) =>
         accs.map((a) =>
           a.id === accountId ? { ...a, balance: a.balance - amount, lastMovementAt: today() } : a,
         ),
       );
-      setTransactions((txs) => [
+      mutate(setTransactions, (txs) => [
         {
           id: uid(),
           kind: "despesa",
@@ -252,26 +274,26 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       ]);
       return prev.map((c) => (c.id === cardId ? { ...c, currentInvoice: 0 } : c));
     });
-  }, []);
+  }, [mutate]);
 
   const addInvestment = useCallback((input: Omit<Investment, "id">) => {
-    setInvestments((prev) => [...prev, { ...input, id: uid() }]);
-  }, []);
+    mutate(setInvestments, (prev) => [...prev, { ...input, id: uid() }]);
+  }, [mutate]);
 
   const removeInvestment = useCallback((id: string) => {
-    setInvestments((prev) => prev.filter((i) => i.id !== id));
-  }, []);
+    mutate(setInvestments, (prev) => prev.filter((i) => i.id !== id));
+  }, [mutate]);
 
   const addSubscription = useCallback((input: Omit<Subscription, "id">) => {
-    setSubscriptions((prev) => [...prev, { ...input, id: uid() }]);
-  }, []);
+    mutate(setSubscriptions, (prev) => [...prev, { ...input, id: uid() }]);
+  }, [mutate]);
 
   const removeSubscription = useCallback((id: string) => {
-    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
-  }, []);
+    mutate(setSubscriptions, (prev) => prev.filter((s) => s.id !== id));
+  }, [mutate]);
 
   const payDebtInstallment = useCallback((id: string) => {
-    setDebts((prev) =>
+    mutate(setDebts, (prev) =>
       prev.map((d) => {
         if (d.id !== id || d.installmentsPaid >= d.installmentsTotal) return d;
         const perInstallment = d.originalAmount / d.installmentsTotal;
@@ -282,7 +304,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         };
       }),
     );
-  }, []);
+  }, [mutate]);
 
   const profile = useMemo(
     () => ({
