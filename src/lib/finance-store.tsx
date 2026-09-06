@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import * as mock from "./mock-data";
 import { useAuth } from "./auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,17 +45,6 @@ interface FinanceState {
   categoryById: (id?: string) => Category | undefined;
   accountById: (id?: string) => Account | undefined;
   cardById: (id?: string) => CreditCard | undefined;
-}
-
-interface FinanceSnapshot {
-  accounts: Account[];
-  cards: CreditCard[];
-  transactions: Transaction[];
-  budgets: Budget[];
-  goals: Goal[];
-  investments: Investment[];
-  debts: Debt[];
-  subscriptions: Subscription[];
 }
 
 const FinanceContext = createContext<FinanceState | null>(null);
@@ -125,9 +114,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, [user]);
 
-  const mutate = useCallback(<K extends keyof FinanceSnapshot>(
-    setter: React.Dispatch<React.SetStateAction<FinanceSnapshot[K]>>,
-    update: React.SetStateAction<FinanceSnapshot[K]>,
+  const mutate = useCallback(<T,>(
+    setter: Dispatch<SetStateAction<T>>,
+    update: SetStateAction<T>,
   ) => {
     mutationVersion.current += 1;
     setter(update);
