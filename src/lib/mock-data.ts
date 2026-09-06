@@ -241,9 +241,9 @@ export const monthlyHistory = monthKeys(6).map((key, index) => {
 });
 
 export const profile = {
-  name: "Larissa",
-  fullName: "Larissa Deschi",
-  email: "larissa@exemplo.com.br",
+  name: "Você",
+  fullName: "",
+  email: "",
   currency: "BRL",
   dateFormat: "DD/MM/YYYY",
 };

@@ -47,7 +47,7 @@ function firstName(fullName: string) {
 }
 
 function fallbackName(user: User) {
-  const metadataName = user.user_metadata?.full_name ?? user.user_metadata?.name;
+  const metadataName = user.user_metadata?.['full_name'] ?? user.user_metadata?.['name'];
   if (typeof metadataName === "string" && metadataName.trim()) return metadataName.trim();
   const localPart = user.email?.split("@")[0] ?? "Usuário";
   return localPart.replace(/[._-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
