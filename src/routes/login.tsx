@@ -18,6 +18,8 @@ export const Route = createFileRoute("/login")({
       },
       { property: "og:title", content: "Entrar — Nexus Finance" },
       { property: "og:description", content: "Login seguro na sua plataforma de controle financeiro." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LoginPage,
@@ -72,8 +74,8 @@ function LoginPage() {
     }
   }
 
-  async function handleForgotPassword(event: FormEvent<HTMLFormElement>) {
-    const data = new FormData(event.currentTarget);
+  async function handleForgotPassword(form: HTMLFormElement) {
+    const data = new FormData(form);
     const email = String(data.get("email") ?? "").trim();
     if (!email.includes("@")) { toast.error("Informe seu e-mail acima"); return; }
     setLoading(true);
@@ -148,7 +150,7 @@ function LoginPage() {
                   className="text-xs text-muted-foreground hover:text-foreground"
                   onClick={(event) => {
                     const form = event.currentTarget.form;
-                    if (form) void handleForgotPassword({ currentTarget: form } as FormEvent<HTMLFormElement>);
+                    if (form) void handleForgotPassword(form);
                   }}
                 >
                   Esqueci minha senha
