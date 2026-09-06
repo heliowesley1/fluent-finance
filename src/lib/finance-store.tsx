@@ -216,7 +216,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
           return a;
         }),
       );
-      mutate(setTransactions, (prev) => [
+      mutate(setTransactions, (prev): Transaction[] => [
         {
           id: uid(),
           kind: "transferencia",
@@ -248,7 +248,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
           a.id === accountId ? { ...a, balance: a.balance - amount, lastMovementAt: today() } : a,
         ),
       );
-      mutate(setTransactions, (txs) => [
+      mutate(setTransactions, (txs): Transaction[] => [
         {
           id: uid(),
           kind: "despesa",
